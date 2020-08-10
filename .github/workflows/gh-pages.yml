@@ -1,0 +1,44 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Deploy to Github Pages
+
+# Controls when the action will run. Triggers the workflow on push or pull request
+# events but only for the master branch
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    - uses: actions/checkout@v2.3.2
+
+    # Use specific version of .NET SDK
+    - name: Setup .NET Core SDK
+      uses: actions/setup-dotnet@v1.6.0
+      with:
+        dotnet-version: 3.1.x
+
+    # Build
+    - name: Publish Application
+      run: |
+        cp ./src/TaTooIne.Demo/wwwroot/index.html ./src/TaTooIne.Demo/wwwroot/404.html
+        dotnet publish -c Release ./src/TaTooIne.Demo/TaTooIne.Demo.csproj -o publish
+
+    # Publish to GH Pages
+    - name: Deploy
+      if: ${{ github.ref == 'refs/heads/master' }} # Publish only when the push is on master
+      uses: peaceiris/actions-gh-pages@v3.6.4
+      with:
+           github_token: ${{ secrets.PUBLISH_TOKEN }}
+           publish_branch: gh-pages
+           publish_dir: ./src/TaTooIne.Demo/publish/wwwroot/
