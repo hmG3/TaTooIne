@@ -1,0 +1,68 @@
+﻿@implements IDisposable
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JsRuntime
+
+<header id="masthead" class="site-header outer">
+    <div class="inner">
+        <div class="site-header-inside">
+            <div class="site-branding">
+                <p class="site-logo">
+                    <NavLink href="" Match="NavLinkMatch.All">
+                        <img src="img/logo.png" alt="TaTooIne">
+                    </NavLink>
+                </p>
+            </div>
+            <nav id="main-navigation" class="site-navigation" aria-label="Main Navigation">
+                <div class="site-nav-inside">
+                    <button id="menu-close" class="menu-toggle" @onclick="@(() => ToggleNavMenuAsync(false))">
+                        <span class="screen-reader-text">Open Menu</span>
+                        <span class="icon-close" aria-hidden="true"></span>
+                    </button>
+                    <ul class="menu">
+                        <li class="menu-item">
+                            <NavLink href="" Match="NavLinkMatch.All">
+                                Home
+                            </NavLink>
+                        </li>
+                        <li class="menu-item">
+                            <NavLink href="benchmark">
+                                Benchmark
+                            </NavLink>
+                        </li>
+                        <li class="menu-item">
+                            <NavLink href="demo">
+                                Demo
+                            </NavLink>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+            <button id="menu-open" class="menu-toggle" @onclick=@(() => ToggleNavMenuAsync(true))>
+                <span class="screen-reader-text">Close Menu</span>
+                <span class="icon-menu" aria-hidden="true"></span>
+            </button>
+        </div>
+    </div>
+</header>
+
+@code {
+    protected override void OnInitialized()
+    {
+        NavigationManager.LocationChanged += HandleLocationChanged;
+    }
+
+    private async void HandleLocationChanged(object sender, LocationChangedEventArgs args)
+    {
+        await ToggleNavMenuAsync(false);
+    }
+
+    private async Task ToggleNavMenuAsync(bool isOpen)
+    {
+        await JsRuntime.InvokeVoidAsync("SiteJsInterop.collapseNavMenu", isOpen, "menu");
+    }
+
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= HandleLocationChanged;
+    }
+}

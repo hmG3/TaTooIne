@@ -1,0 +1,39 @@
+// Font.
+$font: (
+  primary: ("Lato", Helvetica, Arial, sans-serif),
+  monospace: (Monaco, courier, monospace)
+);
+
+// Palette.
+$palette: (
+  primary:           #424b5f,
+  secondary:         #283040,
+  meta:              #67758d,
+  border:            #dee5ef,
+  bg:                #f7f9fb,
+  note:              #fcb41d,
+  important:         #fc381d,
+  accent:            #00c6ff,
+  accent-alt:        #98bad5,
+);
+
+@import "imports/functions";
+
+@import "imports/reset";
+@import "imports/general";
+@import "imports/icons";
+@import "imports/animations";
+@import "imports/structure";
+@import "imports/header";
+@import "imports/posts-pages";
+//@import "imports/post-navigation";
+@import "imports/docs";
+@import "imports/sections";
+@import "imports/footer";
+@import "imports/prism";
+
+/* custom styles */
+
+table#table-calculation {
+    max-height: 400px;
+}

@@ -1,0 +1,131 @@
+@page "/demo"
+@using TALib
+@using TaTooIne.Demo.Models
+@using TinyCsvParser
+@using System.Text
+@using TaTooIne.Demo.Annotations
+@using System.Linq.Expressions
+@inject IJSRuntime JsRuntime
+@inject HttpClient Http
+
+<div class="inner outer">
+    <div class="docs-content">
+        <IndicatorsIndex OnIndicatorSelect="CalculateExample" />
+        <article class="post type-docs">
+            <div class="post-inside">
+                <header class="post-header">
+                    <h1 class="post-title line-left">Demo</h1>
+                </header>
+                <div class="post-content">
+                    <h2>Chart</h2>
+                    <IndicatorChart />
+                    <h2>Example calculation</h2>
+                    <IndicatorData State="_state" />
+                </div>
+            </div>
+        </article>
+    </div>
+</div>
+
+@code {
+    private ICollection<Candle> _sampleData;
+    [UsedImplicitly] private CalculatedState _state;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var csvParser = new CsvParser<Candle>(new CsvParserOptions(true, ';', 1, true), new CandleCsvMapping());
+
+        var fileStream = await Http.GetStreamAsync("sample-data/AAPL.csv");
+        var fileRecords = csvParser.ReadFromStream(fileStream, Encoding.UTF8);
+
+        _sampleData = fileRecords.Select(x => x.Result).ToList();
+    }
+
+    [UsedImplicitly]
+    private async Task CalculateExample(Function function)
+    {
+        var functionInputs = new decimal[function.Inputs.Length][];
+        var functionInputNames = function.Inputs;
+        var functionOutputNames = function.Outputs;
+        if (function.Inputs.Length == 1 && function.Inputs.Single() == "Real")
+        {
+            functionInputNames = new[] { nameof(Candle.Close) };
+        }
+        if (function.Outputs.Length == 1 && function.Outputs.Single() == "Real")
+        {
+            functionOutputNames = new[] { function.Name };
+        }
+        var inputLines = new Dictionary<string, Line[]>();
+        for (var i = 0; i < functionInputNames.Length; i++)
+        {
+            var c = Expression.Parameter(typeof(Candle), "c");
+            var timeBinding = Expression.Bind(
+                typeof(Line).GetProperty(nameof(Line.Time))!,
+                Expression.Property(c, nameof(Candle.Time))
+            );
+            var valueBinding = Expression.Bind(
+                typeof(Line).GetProperty(nameof(Line.Value))!,
+                Expression.Property(c, functionInputNames[i])
+            );
+            var lineClassInit = Expression.MemberInit(Expression.New(typeof(Line)), timeBinding, valueBinding);
+            var lineLambda = Expression.Lambda<Func<Candle, Line>>(lineClassInit, c);
+
+            inputLines[functionInputNames[i]] = _sampleData.Select(lineLambda.Compile()).ToArray();
+            functionInputs[i] = inputLines[functionInputNames[i]].Select(l => l.Value).ToArray();
+        }
+
+        var inputOffset = function.Lookback();
+        var outputLength = functionInputs[0].Length - inputOffset;
+        var functionOutputs = new decimal[function.Outputs.Length][];
+        for (var i = 0; i < functionOutputs.Length; i++)
+        {
+            functionOutputs[i] = new decimal[outputLength];
+        }
+
+        function.Run(functionInputs, Array.Empty<decimal>(), functionOutputs);
+
+        var outputLines = functionOutputs.Zip(Enumerable.Repeat(inputLines.Values.ElementAt(0).Skip(inputOffset).ToList(), functionOutputs.Length), (lines, decimals) =>
+        {
+            return decimals.Zip(lines, (l, d) => new Line
+            {
+                Time = l.Time,
+                Value = d
+            }).ToList();
+        }).ToList();
+
+        var outputLineValues = outputLines.Select(lines => Enumerable.Repeat<Line>(null, inputOffset).Concat(lines).ToList()).ToList();
+
+        _state = new CalculatedState
+        {
+            InputNames = inputLines.Keys,
+            OutputNames = functionOutputNames,
+            InputValues = inputLines.Values.ToList(),
+            OutputValues = outputLineValues
+        };
+
+        switch (function.Group)
+        {
+            case "Overlap Studies":
+                await JsRuntime.InvokeVoidAsync("SiteJsInterop.setChartData", function.Name, new
+                {
+                    Candle = _sampleData,
+                    OverlayLines = outputLines
+                });
+
+                break;
+            case "Momentum Indicators":
+            case "Volatility Indicators":
+            case "Price Transform":
+                await JsRuntime.InvokeVoidAsync("SiteJsInterop.setChartData", function.Name, new
+                {
+                    Candle = _sampleData,
+                    ValueLines = outputLines
+                });
+                break;
+            case "Math Transform":
+            case "Math Operators":
+            case "Statistic Functions":
+                break;
+        }
+    }
+}
