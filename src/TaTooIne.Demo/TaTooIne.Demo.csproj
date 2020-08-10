@@ -1,39 +1,57 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <RazorLangVersion>3.0</RazorLangVersion>
     <BlazorEnableTimeZoneSupport>false</BlazorEnableTimeZoneSupport>
     <BlazorWebAssemblyPreserveCollationData>false</BlazorWebAssemblyPreserveCollationData>
+    <UserSecretsId>b812f0c6-766f-4c21-b33e-e880a26f4ab9</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Remove="compilerconfig.json" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <_ContentIncludedByDefault Remove="compilerconfig.json" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="compilerconfig.json" />
-    <None Include="wwwroot\sample-data\AAPL.csv" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="BuildWebCompiler" Version="1.12.405" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="3.2.1" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Build" Version="3.2.1" PrivateAssets="all" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="3.2.1" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.TypeScript.MSBuild" Version="3.9.7">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Web.LibraryManager.Build" Version="2.1.76" />
     <PackageReference Include="System.Net.Http.Json" Version="3.2.1" />
     <PackageReference Include="TinyCsvParser" Version="2.5.2" />
     <PackageReference Include="Tulip.NETCore" Version="0.8.0.1" />
   </ItemGroup>
-
   <ItemGroup>
     <Reference Include="TALib.NETCore">
-      <HintPath>..\..\..\TA-Lib.NETCore\src\TALib.NETCore\bin\Debug\netstandard2.1\TALib.NETCore.dll</HintPath>
+      <HintPath>Properties\TALib.NETCore.dll</HintPath>
+      <Private>true</Private>
     </Reference>
   </ItemGroup>
-
+  <ItemGroup>
+    <Content Remove="wwwroot\_scss\**\*.*" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="wwwroot\_scss\**\*.*" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="files.conf" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="files.conf" />
+  </ItemGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <TypeScriptTarget>ES2020</TypeScriptTarget>
+    <TypeScriptModuleKind>None</TypeScriptModuleKind>
+    <TypeScriptOutDir>wwwroot\js</TypeScriptOutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <TypeScriptTarget>ES2020</TypeScriptTarget>
+    <TypeScriptModuleKind>None</TypeScriptModuleKind>
+    <TypeScriptOutDir>wwwroot\js</TypeScriptOutDir>
+    <TypeScriptRemoveComments>true</TypeScriptRemoveComments>
+    <TypeScriptSourceMap>false</TypeScriptSourceMap>
+  </PropertyGroup>
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="webcompiler -f files.conf -c webcompiler.json" />
+  </Target>
 </Project>

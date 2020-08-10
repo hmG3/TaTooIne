@@ -1,63 +1,57 @@
-﻿class SiteJsInterop {
+"use strict";
+class SiteJsInterop {
     constructor() {
-        window.hljs.initHighlightingOnLoad();
+        //window.hljs.initHighlightingOnLoad();
     }
-
     collapseNavMenu(isOpened, sender) {
         document.body.classList[isOpened ? 'add' : 'remove'](`${sender}--opened`);
     }
-
     setupChart(element) {
-        this.chart = LightweightCharts.createChart(element,
-            {
-                width: 750,
-                height: 400,
-                grid: {
-                    vertLines: {
-                        color: 'rgba(197, 203, 206, 0.5)'
-                    },
-                    horzLines: {
-                        color: 'rgba(197, 203, 206, 0.5)'
-                    }
+        this.chart = LightweightCharts.createChart(element, {
+            width: 750,
+            height: 400,
+            grid: {
+                vertLines: {
+                    color: 'rgba(197, 203, 206, 0.5)'
                 },
-                crosshair: {
-                    mode: LightweightCharts.CrosshairMode.Normal
-                },
-                rightPriceScale: {
-                    visible: true,
-                    borderColor: 'rgba(197, 203, 206, 1)'
-                },
-                leftPriceScale: {
-                    visible: true,
-                    borderColor: 'rgba(197, 203, 206, 1)'
-                },
-                timeScale: {
-                    borderColor: 'rgba(197, 203, 206, 0.8)'
-                },
-                watermark: {
-                    visible: true,
-                    fontSize: 24,
-                    horzAlign: 'center',
-                    vertAlign: 'center',
-                    color: 'rgba(171, 71, 188, 0.5)'
+                horzLines: {
+                    color: 'rgba(197, 203, 206, 0.5)'
                 }
-            });
-
+            },
+            crosshair: {
+                mode: LightweightCharts.CrosshairMode.Normal
+            },
+            rightPriceScale: {
+                visible: true,
+                borderColor: 'rgba(197, 203, 206, 1)'
+            },
+            leftPriceScale: {
+                visible: true,
+                borderColor: 'rgba(197, 203, 206, 1)'
+            },
+            timeScale: {
+                borderColor: 'rgba(197, 203, 206, 0.8)'
+            },
+            watermark: {
+                visible: true,
+                fontSize: 24,
+                horzAlign: 'center',
+                vertAlign: 'center',
+                color: 'rgba(171, 71, 188, 0.5)'
+            }
+        });
         this.chartSeriesMap = new Map();
     }
-
     setChartData(title, { candle, overlayLines, volume, valueLines }) {
         this.chartSeriesMap.forEach((v, k, m) => {
             this.chart.removeSeries(v);
             m.delete(k);
         });
-
         this.chart.applyOptions({
             watermark: {
                 text: title.toUpperCase()
             }
         });
-
         if (candle && Array.isArray(candle)) {
             const candleSeries = this.chart.addCandlestickSeries({
                 priceScaleId: 'left',
@@ -66,7 +60,6 @@
             candleSeries.setData(candle);
             this.chartSeriesMap.set('candle', candleSeries);
         }
-
         if (volume && volume.length) {
             const volumeSeries = this.chart.addHistogramSeries({
                 priceFormat: {
@@ -83,7 +76,6 @@
             volumeSeries.setData(volume);
             this.chartSeriesMap.set('volume', volumeSeries);
         }
-
         if (overlayLines && Array.isArray(overlayLines)) {
             for (let i = 0; i < overlayLines.length; i++) {
                 const overlayLineSeries = this.chart.addLineSeries({
@@ -94,7 +86,6 @@
                 this.chartSeriesMap.set(`overlayLine${i}`, overlayLineSeries);
             }
         }
-
         if (valueLines && Array.isArray(valueLines)) {
             for (let i = 0; i < valueLines.length; i++) {
                 const valueLineSeries = this.chart.addLineSeries({
@@ -109,9 +100,11 @@
                 this.chartSeriesMap.set(`valueLine${i}`, valueLineSeries);
             }
         }
-
         this.chart.timeScale().fitContent();
     }
+    static load() {
+        window[SiteJsInterop.name] = new SiteJsInterop();
+    }
 }
-
-window[SiteJsInterop.name] = new SiteJsInterop();
+SiteJsInterop.load();
+//# sourceMappingURL=SiteJsInterop.js.map
