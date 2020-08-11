@@ -33,7 +33,7 @@ jobs:
       run: |
         dotnet tool install Excubo.WebCompiler --global --version 2.3.2
         cp ./src/TaTooIne.Demo/wwwroot/index.html ./src/TaTooIne.Demo/wwwroot/404.html
-        dotnet publish -c Release ./src/TaTooIne.Demo/TaTooIne.Demo.csproj -o publish
+        dotnet publish -c Release ./src/TaTooIne.Demo/TaTooIne.Demo.csproj -o ./src/TaTooIne.Demo/publish
 
     # Publish to GH Pages
     - name: Deploy
