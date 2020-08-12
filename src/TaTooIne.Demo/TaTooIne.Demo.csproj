@@ -34,24 +34,24 @@
     <None Include="wwwroot\_scss\**\*.*" />
   </ItemGroup>
   <ItemGroup>
-    <None Remove="files.conf" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="files.conf" />
+    <Folder Include="wwwroot\css\" />
+    <Folder Include="wwwroot\_ts\lib\" />
   </ItemGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
     <TypeScriptTarget>ES2020</TypeScriptTarget>
-    <TypeScriptModuleKind>None</TypeScriptModuleKind>
+    <TypeScriptModuleKind>ES6</TypeScriptModuleKind>
+    <TypeScriptLib>dom,es2020</TypeScriptLib>
     <TypeScriptOutDir>wwwroot\js</TypeScriptOutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <TypeScriptTarget>ES2020</TypeScriptTarget>
-    <TypeScriptModuleKind>None</TypeScriptModuleKind>
+    <TypeScriptModuleKind>ES6</TypeScriptModuleKind>
+    <TypeScriptLib>dom,es2020</TypeScriptLib>
     <TypeScriptOutDir>wwwroot\js</TypeScriptOutDir>
     <TypeScriptRemoveComments>true</TypeScriptRemoveComments>
     <TypeScriptSourceMap>false</TypeScriptSourceMap>
   </PropertyGroup>
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="webcompiler -f files.conf -c webcompiler.json" />
+    <Exec Command="webcompiler wwwroot/_scss/main.scss -z disable -o wwwroot/css -p disable&#xD;&#xA;webcompiler -r wwwroot/js -z disable" />
   </Target>
 </Project>

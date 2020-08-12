@@ -1,7 +1,7 @@
 ﻿import type {
     BusinessDay, ChartOptions, CrosshairMode, DeepPartial, IChartApi, ISeriesApi, LineStyle, LineType, PriceLineSource, PriceScaleMode,
     TickMarkType, Time, UTCTimestamp
-} from "lib/lightweight-charts/dist/typings";
+} from './lib/lightweight-charts/dist/typings';
 
 class SiteJsInterop {
     private chart: IChartApi;
@@ -11,6 +11,10 @@ class SiteJsInterop {
         //window.hljs.initHighlightingOnLoad();
     }
 
+    static load(): void {
+        window[SiteJsInterop.name] = new SiteJsInterop();
+    }
+
     collapseNavMenu(isOpened: boolean, sender: string) {
         document.body.classList[isOpened ? 'add' : 'remove'](`${sender}--opened`);
     }
@@ -18,7 +22,6 @@ class SiteJsInterop {
     setupChart(element: HTMLElement) {
         this.chart = LightweightCharts.createChart(element,
             {
-                width: 750,
                 height: 400,
                 grid: {
                     vertLines: {
@@ -50,6 +53,14 @@ class SiteJsInterop {
                     color: 'rgba(171, 71, 188, 0.5)'
                 }
             });
+
+            let resizeTimerId: number;
+            document.body.onresize = () => {
+                if (resizeTimerId) {
+                    clearTimeout(resizeTimerId);
+                }
+                resizeTimerId = setTimeout(() => this.resizeChart(), 100);
+            }
 
         this.chartSeriesMap = new Map<string, ISeriesApi<'Candlestick' | 'Histogram' | 'Line' | 'Bar' | 'Area'>>();
     }
@@ -118,11 +129,13 @@ class SiteJsInterop {
             }
         }
 
+        window.dispatchEvent(new UIEvent('resize'));
         this.chart.timeScale().fitContent();
     }
 
-    static load(): void {
-        window[SiteJsInterop.name] = new SiteJsInterop();
+    private resizeChart() {
+        const chartContainer = document.getElementById('chart');
+        this.chart.resize(chartContainer.offsetWidth, chartContainer.offsetHeight);
     }
 }
 
