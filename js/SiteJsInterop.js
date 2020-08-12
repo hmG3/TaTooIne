@@ -1,12 +1,14 @@
 class SiteJsInterop {
     constructor() {
     }
+    static load() {
+        window[SiteJsInterop.name] = new SiteJsInterop();
+    }
     collapseNavMenu(isOpened, sender) {
         document.body.classList[isOpened ? 'add' : 'remove'](`${sender}--opened`);
     }
     setupChart(element) {
         this.chart = LightweightCharts.createChart(element, {
-            width: 750,
             height: 400,
             grid: {
                 vertLines: {
@@ -38,6 +40,13 @@ class SiteJsInterop {
                 color: 'rgba(171, 71, 188, 0.5)'
             }
         });
+        let resizeTimerId;
+        document.body.onresize = () => {
+            if (resizeTimerId) {
+                clearTimeout(resizeTimerId);
+            }
+            resizeTimerId = setTimeout(() => this.resizeChart(), 100);
+        };
         this.chartSeriesMap = new Map();
     }
     setChartData(title, { candle, overlayLines, volume, valueLines }) {
@@ -98,10 +107,12 @@ class SiteJsInterop {
                 this.chartSeriesMap.set(`valueLine${i}`, valueLineSeries);
             }
         }
+        window.dispatchEvent(new UIEvent('resize'));
         this.chart.timeScale().fitContent();
     }
-    static load() {
-        window[SiteJsInterop.name] = new SiteJsInterop();
+    resizeChart() {
+        const chartContainer = document.getElementById('chart');
+        this.chart.resize(chartContainer.offsetWidth, chartContainer.offsetHeight);
     }
 }
 SiteJsInterop.load();
