@@ -49,7 +49,7 @@ class SiteJsInterop {
         };
         this.chartSeriesMap = new Map();
     }
-    setChartData(title, { candle, overlayLines, volume, valueLines }) {
+    setChartData(title, data) {
         this.chartSeriesMap.forEach((v, k, m) => {
             this.chart.removeSeries(v);
             m.delete(k);
@@ -59,15 +59,15 @@ class SiteJsInterop {
                 text: title.toUpperCase()
             }
         });
-        if (candle && Array.isArray(candle)) {
+        if (data.candle && Array.isArray(data.candle)) {
             const candleSeries = this.chart.addCandlestickSeries({
                 priceScaleId: 'left',
                 title: 'AAPL'
             });
-            candleSeries.setData(candle);
+            candleSeries.setData(data.candle);
             this.chartSeriesMap.set('candle', candleSeries);
         }
-        if (volume && volume.length) {
+        if (data.volume && data.volume.length) {
             const volumeSeries = this.chart.addHistogramSeries({
                 priceFormat: {
                     type: 'volume'
@@ -80,21 +80,21 @@ class SiteJsInterop {
                     bottom: 0
                 }
             });
-            volumeSeries.setData(volume);
+            volumeSeries.setData(data.volume);
             this.chartSeriesMap.set('volume', volumeSeries);
         }
-        if (overlayLines && Array.isArray(overlayLines)) {
-            for (let i = 0; i < overlayLines.length; i++) {
+        if (data.overlayLines && Array.isArray(data.overlayLines)) {
+            for (let i = 0; i < data.overlayLines.length; i++) {
                 const overlayLineSeries = this.chart.addLineSeries({
                     priceScaleId: 'right',
                     lineWidth: 1
                 });
-                overlayLineSeries.setData(overlayLines[i]);
+                overlayLineSeries.setData(data.overlayLines[i]);
                 this.chartSeriesMap.set(`overlayLine${i}`, overlayLineSeries);
             }
         }
-        if (valueLines && Array.isArray(valueLines)) {
-            for (let i = 0; i < valueLines.length; i++) {
+        if (data.valueLines && Array.isArray(data.valueLines)) {
+            for (let i = 0; i < data.valueLines.length; i++) {
                 const valueLineSeries = this.chart.addLineSeries({
                     priceScaleId: '',
                     scaleMargins: {
@@ -103,7 +103,7 @@ class SiteJsInterop {
                     },
                     lineWidth: 1
                 });
-                valueLineSeries.setData(valueLines[i]);
+                valueLineSeries.setData(data.valueLines[i]);
                 this.chartSeriesMap.set(`valueLine${i}`, valueLineSeries);
             }
         }
