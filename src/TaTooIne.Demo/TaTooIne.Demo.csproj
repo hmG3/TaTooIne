@@ -18,14 +18,9 @@
     </PackageReference>
     <PackageReference Include="Microsoft.Web.LibraryManager.Build" Version="2.1.76" />
     <PackageReference Include="System.Net.Http.Json" Version="3.2.1" />
+    <PackageReference Include="TALib.NETCore" Version="0.4.0" />
     <PackageReference Include="TinyCsvParser" Version="2.5.2" />
     <PackageReference Include="Tulip.NETCore" Version="0.8.0.1" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="TALib.NETCore">
-      <HintPath>Properties\TALib.NETCore.dll</HintPath>
-      <Private>true</Private>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Content Remove="wwwroot\_scss\**\*.*" />
