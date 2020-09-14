@@ -46,7 +46,7 @@
 
     protected override void OnInitialized()
     {
-        _groups = new Functions().GroupBy(f => f.Group).ToList();
+        _groups = new Functions().Where(g => g.Group != "Math Transform").GroupBy(f => f.Group).ToList();
     }
 
     private string NavMenuCssClass(int groupId) => ActiveGroupId == groupId ? "active" : null;

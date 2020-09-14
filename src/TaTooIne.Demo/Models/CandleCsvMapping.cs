@@ -1,4 +1,5 @@
-﻿using TinyCsvParser.Mapping;
+﻿using System;
+using TinyCsvParser.Mapping;
 
 namespace TaTooIne.Demo.Models
 {
@@ -6,7 +7,7 @@ namespace TaTooIne.Demo.Models
     {
         public CandleCsvMapping()
         {
-            MapProperty(0, x => x.Time);
+            MapProperty(0, x => x.Time, new SpecifiedKindDateTimeConverter(DateTimeKind.Utc));
             MapProperty(1, x => x.Open);
             MapProperty(2, x => x.High);
             MapProperty(3, x => x.Low);

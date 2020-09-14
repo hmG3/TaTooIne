@@ -92,13 +92,9 @@ class SiteJsInterop {
                 priceFormat: {
                     type: 'volume'
                 },
-                priceLineVisible: false,
                 color: 'rgba(76, 175, 80, 0.5)',
-                priceScaleId: '',
-                scaleMargins: {
-                    top: 0.85,
-                    bottom: 0
-                }
+                priceLineVisible: false,
+                priceScaleId: 'left'
             });
             volumeSeries.setData(data.volume);
             this.chartSeriesMap.set('volume', volumeSeries);
@@ -131,12 +127,12 @@ class SiteJsInterop {
         }
 
         window.dispatchEvent(new UIEvent('resize'));
-        this.chart.timeScale().fitContent();
     }
 
     private resizeChart() {
         const chartContainer = document.getElementById('chart');
         this.chart.resize(chartContainer.offsetWidth, chartContainer.offsetHeight);
+        this.chart.timeScale().fitContent();
     }
 }
 
