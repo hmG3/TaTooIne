@@ -17,24 +17,24 @@ $palette: (
   accent-alt:        #98bad5,
 );
 
-@import "imports/functions";
+@import "theme/functions";
 
-@import "imports/reset";
-@import "imports/general";
-@import "imports/icons";
-@import "imports/animations";
-@import "imports/structure";
-@import "imports/header";
-@import "imports/posts-pages";
-//@import "imports/post-navigation";
-@import "imports/docs";
-@import "imports/sections";
-@import "imports/footer";
-@import "imports/prism";
-@import "imports/blazor";
+@import "theme/reset";
+@import "theme/general";
+@import "theme/icons";
+@import "theme/animations";
+@import "theme/structure";
+@import "theme/header";
+@import "theme/posts-pages";
+//@import "theme/post-navigation";
+@import "theme/docs";
+@import "theme/sections";
+@import "theme/footer";
+@import "theme/prism";
+@import "theme/blazor";
 
 /* custom styles */
 
 table#table-calculation {
-    max-height: 400px;
+  max-height: 400px;
 }

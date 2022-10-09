@@ -3,8 +3,8 @@
 @using TaTooIne.Demo.Models
 @using TinyCsvParser
 @using System.Text
-@using TaTooIne.Demo.Annotations
 @using System.Linq.Expressions
+@using JetBrains.Annotations
 @inject IJSRuntime JsRuntime
 @inject HttpClient Http
 
@@ -45,16 +45,19 @@
     private async Task CalculateExample(Function function)
     {
         var functionInputs = new decimal[function.Inputs.Length][];
-        var functionInputNames = function.Inputs;
-        var functionOutputNames = function.Outputs;
-        if (function.Inputs.Length == 1 && function.Inputs.Single() == "Real")
+        var functionInputNames = new string[function.Inputs.Length];
+        var functionOutputNames = new string[function.Outputs.Length];
+        for (var i = 0; i < function.Inputs.Length; i++)
         {
-            functionInputNames = new[] { nameof(Candle.Close) };
+            functionInputNames[i] = function.Inputs[i] == "Real"
+                ? i == 0 ? nameof(Candle.Close) : nameof(Candle.Open)
+                : function.Inputs[i];
         }
-        if (function.Outputs.Length == 1 && function.Outputs.Single() == "Real")
+        for (var i = 0; i < function.Outputs.Length; i++)
         {
-            functionOutputNames = new[] { function.Name };
+            functionOutputNames[i] = function.Outputs[i] == "Real" ? function.Name : function.Outputs[i];
         }
+
         var inputLines = new Dictionary<string, Line[]>();
         for (var i = 0; i < functionInputNames.Length; i++)
         {
@@ -97,35 +100,36 @@
 
         _state = new CalculatedState
         {
+            FuncDescription = function.Description,
             InputNames = inputLines.Keys,
             OutputNames = functionOutputNames,
             InputValues = inputLines.Values.ToList(),
             OutputValues = outputLineValues
         };
 
-        switch (function.Group)
+        object data = function.Group switch
         {
-            case "Overlap Studies":
-                await JsRuntime.InvokeVoidAsync("SiteJsInterop.setChartData", function.Name, new
+            "Overlap Studies" => new
+            {
+                Candle = _sampleData,
+                OverlayLines = outputLines
+            },
+            "Volume Indicators" => new
+            {
+                Volume = _sampleData.Select(c => new Line
                 {
-                    Candle = _sampleData,
-                    OverlayLines = outputLines
-                });
+                    Time = c.Time,
+                    Value = c.Volume
+                }).ToList(),
+                OverlayLines = outputLines
+            },
+            _ => new
+            {
+                Candle = _sampleData,
+                ValueLines = outputLines
+            }
+        };
 
-                break;
-            case "Momentum Indicators":
-            case "Volatility Indicators":
-            case "Price Transform":
-                await JsRuntime.InvokeVoidAsync("SiteJsInterop.setChartData", function.Name, new
-                {
-                    Candle = _sampleData,
-                    ValueLines = outputLines
-                });
-                break;
-            case "Math Transform":
-            case "Math Operators":
-            case "Statistic Functions":
-                break;
-        }
+        await JsRuntime.InvokeVoidAsync("SiteJsInterop.setChartData", function.Name, data);
     }
 }
