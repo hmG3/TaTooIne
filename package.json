@@ -1,0 +1,18 @@
+{
+  "name": "tatooine",
+  "version": "1.0.0",
+  "license": "MIT",
+  "type": "module",
+  "devDependencies": {
+    "esbuild": "~0.15.10",
+    "esbuild-sass-plugin": "~2.3.3"
+  },
+  "dependencies": {
+    "ghspa": "~1.0.0",
+    "lightweight-charts": "~3.8.0",
+    "highlight.js": "~11.6.0"
+  },
+  "scripts": {
+    "build": "node esbuild.js"
+  }
+}

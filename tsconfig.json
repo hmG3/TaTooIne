@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "moduleResolution": "node",
+    "target": "es2017",
+    "module": "es2020",
+    "typeRoots": ["node_modules/@types"],
+    "lib": ["es2020", "dom"],
+  },
+  "exclude": [
+    "node_modules"
+  ]
+}
