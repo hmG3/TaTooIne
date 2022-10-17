@@ -5,30 +5,26 @@ using BenchmarkDotNet.Environments;
 using BenchmarkDotNet.Exporters;
 using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Loggers;
-using BenchmarkDotNet.Order;
+using BenchmarkDotNet.Reports;
+using Perfolizer.Horology;
 
-namespace TaTooIne.Benchmark
+namespace TaTooIne.Benchmark;
+
+internal sealed class BenchmarkConfig : ManualConfig
 {
-    public class BenchmarkConfig : ManualConfig
+    public BenchmarkConfig()
     {
-        public BenchmarkConfig()
-        {
-            AddJob(new Job
-            {
-                Environment =
-                {
-                    Platform = Platform.X64,
-                    Jit = Jit.RyuJit,
-                    Runtime = CoreRuntime.Core31,
-                }
-            });
-            AddColumnProvider(DefaultColumnProviders.Instance);
-            AddColumn(RankColumn.Arabic);
-            AddLogger(ConsoleLogger.Default);
-            AddExporter(MarkdownExporter.Default);
-            AddDiagnoser(MemoryDiagnoser.Default);
-            Orderer = new DefaultOrderer(SummaryOrderPolicy.FastestToSlowest);
-            UnionRule = ConfigUnionRule.AlwaysUseLocal;
-        }
+        AddJob(Job.Dry
+            .WithPlatform(Platform.X64)
+            .WithJit(Jit.RyuJit)
+            .WithRuntime(CoreRuntime.Core60));
+        AddColumnProvider(DefaultColumnProviders.Instance);
+        AddLogger(ConsoleLogger.Default);
+        AddExporter(HtmlExporter.Default);
+        AddDiagnoser(MemoryDiagnoser.Default);
+        AddLogicalGroupRules(BenchmarkLogicalGroupRule.ByParams);
+        Orderer = BenchmarkOrderer.Instance;
+        UnionRule = ConfigUnionRule.AlwaysUseLocal;
+        SummaryStyle = SummaryStyle.Default.WithTimeUnit(TimeUnit.Millisecond);
     }
 }
