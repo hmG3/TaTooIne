@@ -19,7 +19,7 @@ internal sealed class BenchmarkOrderer : IOrderer
 
     public IEnumerable<BenchmarkCase> GetExecutionOrder(
         ImmutableArray<BenchmarkCase> benchmarkCases,
-        IEnumerable<BenchmarkLogicalGroupRule> _)
+        IEnumerable<BenchmarkLogicalGroupRule>? _)
     {
         return benchmarkCases
             .OrderBy(b => b.Parameters["order"])
@@ -34,7 +34,7 @@ internal sealed class BenchmarkOrderer : IOrderer
         foreach (var logicalGroup in GetLogicalGroupOrder(benchmarkLogicalGroups,
                      Enumerable.Empty<BenchmarkLogicalGroupRule>()))
         {
-            foreach (var benchmark in logicalGroup.OrderBy(b => summary[b].ResultStatistics?.Mean ?? 0d))
+            foreach (var benchmark in logicalGroup.OrderBy(b => summary[b]!.ResultStatistics?.Mean ?? 0d))
             {
                 yield return benchmark;
             }
@@ -53,7 +53,7 @@ internal sealed class BenchmarkOrderer : IOrderer
 
     public IEnumerable<IGrouping<string, BenchmarkCase>> GetLogicalGroupOrder(
         IEnumerable<IGrouping<string, BenchmarkCase>> logicalGroups,
-        IEnumerable<BenchmarkLogicalGroupRule> _)
+        IEnumerable<BenchmarkLogicalGroupRule>? _)
     {
         return logicalGroups;
     }

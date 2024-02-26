@@ -1,4 +1,6 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Buffers;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
 using BenchmarkDotNet.Attributes;
 using TALib;
 using Tulip;
@@ -7,21 +9,17 @@ namespace TaTooIne.Benchmark;
 
 public class IndicatorsBenchmark
 {
-    private Memory<double> _openDataMemory;
-    private Memory<double> _highDataMemory;
-    private Memory<double> _lowDataMemory;
-    private Memory<double> _closeDataMemory;
-    private Memory<double> _volumeDataMemory;
+    private IMemoryOwner<double> _inputsMemoryPool = null!;
 
-    private Dictionary<int, double[][]> _tulipInputsDic;
-    private Dictionary<int, double[]> _tulipOptionsDic;
-    private Dictionary<int, double[][]> _tulipOutputsDic;
+    private Dictionary<int, double[][]> _tulipInputs = null!;
+    private Dictionary<int, double[]> _tulipOptions = null!;
+    private Dictionary<int, double[][]> _tulipOutputs = null!;
 
-    private Dictionary<int, double[][]> _talibInputsDic;
-    private Dictionary<int, double[]> _talibOptionsDic;
-    private Dictionary<int, double[][]> _talibOutputsDic;
+    private Dictionary<int, double[][]> _talibInputs = null!;
+    private Dictionary<int, double[]> _talibOptions = null!;
+    private Dictionary<int, double[][]> _talibOutputs = null!;
 
-    [Params(400000)] public int InputSize;
+    [Params(21000)] public int InputSize;
 
     [GlobalSetup(Target = "Tulip")]
     public void GlobalTulipSetup()
@@ -30,63 +28,71 @@ public class IndicatorsBenchmark
         SetupTulipInputs();
     }
 
-    [GlobalSetup(Target = "TALib")]
-    public void GlobalTALibSetup()
-    {
-        GenerateInputs();
-        SetupTalibInputs();
-    }
-
     [Benchmark]
     [ArgumentsSource(nameof(TulipSource))]
-    public void Tulip(Indicator indicator, int order)
+    public void Tulip(Indicator Indicator, int order)
     {
-        var returnCode = indicator.Run(_tulipInputsDic[order], _tulipOptionsDic[order], _tulipOutputsDic[order]);
+        var returnCode = Indicator.Run(_tulipInputs[order], _tulipOptions[order], _tulipOutputs[order]);
         if (returnCode != 0)
         {
             throw new Exception("Return code not 0");
         }
     }
 
+    public static IEnumerable<object[]> TulipSource() =>
+        Indicators.All
+            //.Where(indicator => !indicator.Name.Equals("msw", StringComparison.OrdinalIgnoreCase))
+            .Select((indicator, index) => new object[] { indicator, index });
+
+    [GlobalCleanup(Target = "Tulip")]
+    public void GlobalTulipCleanup()
+    {
+        _inputsMemoryPool.Dispose();
+    }
+
+    [GlobalSetup(Target = "TALib")]
+    public void GlobalTALibSetup()
+    {
+        GenerateInputs();
+        SetupTALibInputs();
+    }
+
     [Benchmark]
     [ArgumentsSource(nameof(TALibSource))]
-    public void TALib(Function indicator, int order)
+    public void TALib(Function Indicator, int order)
     {
-        var returnCode = indicator.Run(_talibInputsDic[order], _talibOptionsDic[order], _talibOutputsDic[order]);
+        var returnCode = Indicator.Run(_talibInputs[order], _talibOptions[order], _talibOutputs[order]);
         if (returnCode != Core.RetCode.Success)
         {
             throw new Exception("Return code not 0");
         }
     }
 
-    public IEnumerable<object[]> TulipSource()
-    {
-        return Indicators.All
-            //.Where(indicator => !indicator.Name.Equals("msw", StringComparison.OrdinalIgnoreCase))
-            .Select((indicator, index) => new object[] { indicator, index });
-    }
+    public static IEnumerable<object[]> TALibSource() =>
+        Functions.All.Select((function, index) => new object[] { function, index });
 
-    public IEnumerable<object[]> TALibSource()
+    [GlobalCleanup(Target = "TALib")]
+    public void GlobalTALibCleanup()
     {
-        return Functions.All.Select((function, index) => new object[] { function, index });
+        _inputsMemoryPool.Dispose();
     }
 
     private void GenerateInputs()
     {
         var random = new Random(Environment.TickCount);
 
-        _openDataMemory = new Memory<double>(new double[InputSize]);
-        _highDataMemory = new Memory<double>(new double[InputSize]);
-        _lowDataMemory = new Memory<double>(new double[InputSize]);
-        _closeDataMemory = new Memory<double>(new double[InputSize]);
-        _volumeDataMemory = new Memory<double>(new double[InputSize]);
+        _inputsMemoryPool = MemoryPool<double>.Shared.Rent(InputSize * 5);
 
-        var openDataSpan = _openDataMemory.Span;
-        var highDataSpan = _highDataMemory.Span;
-        var lowDataSpan = _lowDataMemory.Span;
-        var closeDataSpan = _closeDataMemory.Span;
-        var volumeDataSpan = _volumeDataMemory.Span;
+        var inputsMemorySpan = _inputsMemoryPool.Memory.Span;
 
+        var openDataOffset = InputSize * 0;
+        var highDataOffset = InputSize * 1;
+        var lowDataOffset = InputSize * 2;
+        var closeDataOffset = InputSize * 3;
+        var volumeDataOffset = InputSize * 4;
+
+        inputsMemorySpan[openDataOffset] = 100;
+        
         for (var i = 0; i < InputSize; ++i)
         {
             var diff1 = (random.NextDouble() - 0.5 + 0.01) * 2.5;
@@ -95,62 +101,92 @@ public class IndicatorsBenchmark
             var diff4 = random.NextDouble() * 0.5;
             var vol = random.NextDouble() * 10000 + 500;
 
-            if (i != 0)
+            if (i > 0)
             {
-                openDataSpan[i] = openDataSpan[i - 1] + diff1;
-                volumeDataSpan[i] = vol;
+                inputsMemorySpan[openDataOffset + i] = inputsMemorySpan[openDataOffset + i - 1] + diff1;
             }
 
-            closeDataSpan[i] = openDataSpan[i] + diff2;
-            highDataSpan[i] = openDataSpan[i] > closeDataSpan[i]
-                ? openDataSpan[i] + diff3
-                : closeDataSpan[i] + diff3;
-            lowDataSpan[i] = openDataSpan[i] < closeDataSpan[i]
-                ? openDataSpan[i] - diff4
-                : closeDataSpan[i] - diff4;
+            inputsMemorySpan[closeDataOffset + i] = inputsMemorySpan[openDataOffset + i] + diff2;
+
+            inputsMemorySpan[highDataOffset + i] =
+                inputsMemorySpan[openDataOffset + i] > inputsMemorySpan[closeDataOffset + i]
+                    ? inputsMemorySpan[openDataOffset + i] + diff3
+                    : inputsMemorySpan[closeDataOffset + i] + diff3;
+
+            inputsMemorySpan[lowDataOffset + i] =
+                inputsMemorySpan[openDataOffset + i] < inputsMemorySpan[closeDataOffset + i]
+                    ? inputsMemorySpan[openDataOffset + i] - diff4
+                    : inputsMemorySpan[closeDataOffset + i] - diff4;
+
+            inputsMemorySpan[volumeDataOffset + i] = vol;
+
+            Trace.Assert(inputsMemorySpan[openDataOffset + i] <= inputsMemorySpan[highDataOffset + i]);
+            Trace.Assert(inputsMemorySpan[closeDataOffset + i] <= inputsMemorySpan[highDataOffset + i]);
+
+            Trace.Assert(inputsMemorySpan[openDataOffset + i] >= inputsMemorySpan[lowDataOffset + i]);
+            Trace.Assert(inputsMemorySpan[closeDataOffset + i] >= inputsMemorySpan[lowDataOffset + i]);
+
+            Trace.Assert(inputsMemorySpan[highDataOffset + i] >= inputsMemorySpan[lowDataOffset + i]);
+            Trace.Assert(inputsMemorySpan[highDataOffset + i] >= inputsMemorySpan[openDataOffset + i]);
+            Trace.Assert(inputsMemorySpan[highDataOffset + i] >= inputsMemorySpan[closeDataOffset + i]);
+
+            Trace.Assert(inputsMemorySpan[lowDataOffset + i] <= inputsMemorySpan[openDataOffset + i]);
+            Trace.Assert(inputsMemorySpan[lowDataOffset + i] <= inputsMemorySpan[closeDataOffset + i]);
         }
+
+        /* This is a hack, since ta obv uses volume[0] as starting value and ti obv uses 0 as starting value. */
+        inputsMemorySpan[volumeDataOffset] = 0;
     }
 
     private void SetupTulipInputs()
     {
         var indicatorsCount = Indicators.All.Count();
 
-        _tulipInputsDic = new Dictionary<int, double[][]>(indicatorsCount);
-        _tulipOptionsDic = new Dictionary<int, double[]>(indicatorsCount);
-        _tulipOutputsDic = new Dictionary<int, double[][]>(indicatorsCount);
+        _tulipInputs = new Dictionary<int, double[][]>(indicatorsCount);
+        _tulipOptions = new Dictionary<int, double[]>(indicatorsCount);
+        _tulipOutputs = new Dictionary<int, double[][]>(indicatorsCount);
 
         for (var i = 0; i < indicatorsCount; i++)
         {
             var indicator = Indicators.All.ElementAt(i);
 
-            PrepareInputs(indicator, i, _tulipInputsDic, _tulipOptionsDic, _tulipOutputsDic);
+            PrepareInputs(indicator, i, _tulipInputs, _tulipOptions, _tulipOutputs);
         }
     }
 
-    private void SetupTalibInputs()
+    private void SetupTALibInputs()
     {
         var functionsCount = Functions.All.Count();
 
-        _talibInputsDic = new Dictionary<int, double[][]>(functionsCount);
-        _talibOptionsDic = new Dictionary<int, double[]>(functionsCount);
-        _talibOutputsDic = new Dictionary<int, double[][]>(functionsCount);
+        _talibInputs = new Dictionary<int, double[][]>(functionsCount);
+        _talibOptions = new Dictionary<int, double[]>(functionsCount);
+        _talibOutputs = new Dictionary<int, double[][]>(functionsCount);
 
         for (var i = 0; i < functionsCount; i++)
         {
             var function = Functions.All.ElementAt(i);
 
-            PrepareInputs(function, i, _talibInputsDic, _talibOptionsDic, _talibOutputsDic);
+            PrepareInputs(function, i, _talibInputs, _talibOptions, _talibOutputs);
         }
     }
 
-    private void PrepareInputs(dynamic indicator,
+    private void PrepareInputs(
+        dynamic indicator,
         int indicatorIndex,
-        IDictionary<int, double[][]> inputsDic,
-        IDictionary<int, double[]> optionsDic, IDictionary<int, double[][]> outputsDic)
+        Dictionary<int, double[][]> inputsDic,
+        Dictionary<int, double[]> optionsDic,
+        Dictionary<int, double[][]> outputsDic)
     {
         var inputs = new double[indicator.Inputs.Length][];
         var outputs = new double[indicator.Outputs.Length][];
         var options = new double[indicator.Options.Length];
+
+        var inputsMemory = _inputsMemoryPool.Memory;
+        var openDataPointer = InputSize * 0;
+        var highDataPointer = InputSize * 1;
+        var lowDataPointer = InputSize * 2;
+        var closeDataPointer = InputSize * 3;
+        var volumeDataPointer = InputSize * 4;
 
         for (var j = 0; j < indicator.Inputs.Length; j++)
         {
@@ -158,38 +194,43 @@ public class IndicatorsBenchmark
             switch (input.ToLower())
             {
                 case "open":
-                    if (MemoryMarshal.TryGetArray<double>(_openDataMemory, out var openDataArray))
+                    if (MemoryMarshal.TryGetArray<double>(inputsMemory.Slice(openDataPointer, InputSize),
+                            out var openDataArray))
                     {
-                        inputs[j] = openDataArray.Array;
+                        inputs[j] = openDataArray.AsSpan().ToArray();
                     }
 
                     break;
                 case "high":
-                    if (MemoryMarshal.TryGetArray<double>(_highDataMemory, out var highDataArray))
+                    if (MemoryMarshal.TryGetArray<double>(inputsMemory.Slice(highDataPointer, InputSize),
+                            out var highDataArray))
                     {
-                        inputs[j] = highDataArray.Array;
+                        inputs[j] = highDataArray.AsSpan().ToArray();
                     }
 
                     break;
                 case "low":
-                    if (MemoryMarshal.TryGetArray<double>(_lowDataMemory, out var lowDataArray))
+                    if (MemoryMarshal.TryGetArray<double>(inputsMemory.Slice(lowDataPointer, InputSize),
+                            out var lowDataArray))
                     {
-                        inputs[j] = lowDataArray.Array;
+                        inputs[j] = lowDataArray.AsSpan().ToArray();
                     }
 
                     break;
                 case "close":
                 case "real":
-                    if (MemoryMarshal.TryGetArray<double>(_closeDataMemory, out var closeDataArray))
+                    if (MemoryMarshal.TryGetArray<double>(inputsMemory.Slice(closeDataPointer, InputSize),
+                            out var closeDataArray))
                     {
-                        inputs[j] = closeDataArray.Array;
+                        inputs[j] = closeDataArray.AsSpan().ToArray();
                     }
 
                     break;
                 case "volume":
-                    if (MemoryMarshal.TryGetArray<double>(_volumeDataMemory, out var volumeDataArray))
+                    if (MemoryMarshal.TryGetArray<double>(inputsMemory.Slice(volumeDataPointer, InputSize),
+                            out var volumeDataArray))
                     {
-                        inputs[j] = volumeDataArray.Array;
+                        inputs[j] = volumeDataArray.AsSpan().ToArray();
                     }
 
                     break;
