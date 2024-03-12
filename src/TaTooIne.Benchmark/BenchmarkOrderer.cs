@@ -21,9 +21,7 @@ internal sealed class BenchmarkOrderer : IOrderer
         ImmutableArray<BenchmarkCase> benchmarkCases,
         IEnumerable<BenchmarkLogicalGroupRule>? _)
     {
-        return benchmarkCases
-            .OrderBy(b => b.Parameters["order"])
-            .ThenBy(b => b.Descriptor.WorkloadMethodDisplayInfo);
+        return benchmarkCases.OrderBy(b => b.Parameters["order"]).ThenBy(b => b.Descriptor.WorkloadMethodDisplayInfo);
     }
 
     public IEnumerable<BenchmarkCase> GetSummaryOrder(
@@ -41,15 +39,9 @@ internal sealed class BenchmarkOrderer : IOrderer
         }
     }
 
-    public string GetHighlightGroupKey(BenchmarkCase benchmarkCase)
-    {
-        return GetGroupKey(benchmarkCase);
-    }
+    public string GetHighlightGroupKey(BenchmarkCase benchmarkCase) => GetGroupKey(benchmarkCase);
 
-    public string GetLogicalGroupKey(ImmutableArray<BenchmarkCase> _, BenchmarkCase benchmarkCase)
-    {
-        return GetGroupKey(benchmarkCase);
-    }
+    public string GetLogicalGroupKey(ImmutableArray<BenchmarkCase> _, BenchmarkCase benchmarkCase) => GetGroupKey(benchmarkCase);
 
     public IEnumerable<IGrouping<string, BenchmarkCase>> GetLogicalGroupOrder(
         IEnumerable<IGrouping<string, BenchmarkCase>> logicalGroups,
@@ -73,7 +65,7 @@ internal sealed class BenchmarkOrderer : IOrderer
         {
             indicatorParamValue = indicatorParamValue switch
             {
-                "Cmo" => "CmoXXX", // TALib uses EMA, Tulip uses SMA
+                "Cmo" => "XXX", // TALib uses EMA, Tulip uses SMA
                 "LinearReg" => "LinReg",
                 "LinearRegIntercept" => "LinRegIntercept",
                 "LinearRegSlope" => "LinRegSlope",

@@ -22,13 +22,13 @@ config = ManualConfig.Union(new DebugInProcessConfig(), config);
 config = ManualConfig.Union(config, ManualConfig.CreateEmpty()
     .AddLogger(ConsoleLogger.Default)
     .AddJob(Job.Default.WithRuntime(CoreRuntime.Core80))
-    .AddJob(Job.Default.WithRuntime(CoreRuntime.Core70))
-    .AddJob(Job.Default.WithRuntime(CoreRuntime.Core60))
-    .AddColumnProvider(new[]
-    {
-        DefaultColumnProviders.Descriptor, DefaultColumnProviders.Job, DefaultColumnProviders.Statistics,
-        BenchmarkParamsColumnProvider.Instance, DefaultColumnProviders.Metrics
-    })
+    .AddColumnProvider([
+        DefaultColumnProviders.Descriptor,
+        DefaultColumnProviders.Job,
+        DefaultColumnProviders.Statistics,
+        BenchmarkParamsColumnProvider.Instance,
+        DefaultColumnProviders.Metrics
+    ])
     .AddExporter(HtmlExporter.Default));
 #endif
 
