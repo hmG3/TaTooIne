@@ -1,19 +1,16 @@
-﻿using System;
+﻿namespace TaTooIne.Demo.Models;
 
-namespace TaTooIne.Demo.Models
+public sealed class Candle
 {
-    public sealed class Candle
-    {
-        public DateTime Time { get; set; }
+    public DateTime Time { get; init; }
 
-        public decimal Open { get; set; }
+    public double Open { get; init; }
 
-        public decimal High { get; set; }
+    public double High { get; init; }
 
-        public decimal Low { get; set; }
+    public double Low { get; init; }
 
-        public decimal Close { get; set; }
+    public double Close { get; init; }
 
-        public decimal Volume { get; set; }
-    }
+    public double Volume { get; init; }
 }

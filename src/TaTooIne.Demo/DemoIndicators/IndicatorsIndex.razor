@@ -9,14 +9,14 @@
         </button>
         <div class="docs-toc-wrap">
             <ul id="docs-toc" class="docs-toc">
-                @for (var i = 0; i < _groups.Capacity; i++)
+                @for (var i = 0; i < _groups.Count - 1; i++)
                 {
-                    var closureI = i;
-                    <li class="toc-item has-children @NavMenuCssClass(closureI)">
-                        <button type="button" class="button-icon" @onclick="() => ToggleActive(closureI)">
+                    var localI = i;
+                    <li class="toc-item has-children @NavMenuCssClass(localI)">
+                        <button type="button" class="button-icon" @onclick="() => ToggleActive(localI)">
                             @_groups[i].Key
                         </button>
-                        <button type="button" class="submenu-toggle" @onclick="() => ToggleActive(closureI)">
+                        <button type="button" class="submenu-toggle" @onclick="() => ToggleActive(localI)">
                             <span class="screen-reader-text">Submenu</span>
                             <span class="icon-angle-right" aria-hidden="true"></span>
                         </button>
@@ -24,7 +24,9 @@
                             @foreach (var ind in _groups[i])
                             {
                                 <li class="toc-item">
-                                    <button type="button" class="button-icon" @onclick="() => OnIndicatorSelect.InvokeAsync(ind)" @onclick:stopPropagation="true">
+                                    <button type="button" class="button-icon"
+                                            @onclick="() => OnIndicatorSelect.InvokeAsync(ind)"
+                                            @onclick:stopPropagation="true">
                                         @ind.Name
                                     </button>
                                 </li>
@@ -36,26 +38,3 @@
         </div>
     </div>
 </nav>
-
-@code {
-    private bool _navMenuOpened;
-    private List<IGrouping<string, Function>> _groups;
-    private int ActiveGroupId { get; set; } = -1;
-
-    [Parameter] public EventCallback<Function> OnIndicatorSelect { get; set; }
-
-    protected override void OnInitialized()
-    {
-        _groups = new Functions().Where(g => g.Group != "Math Transform").GroupBy(f => f.Group).ToList();
-    }
-
-    private string NavMenuCssClass(int groupId) => ActiveGroupId == groupId ? "active" : null;
-
-    private void ToggleActive(int groupId) => ActiveGroupId = ActiveGroupId == groupId ? -1 : groupId;
-
-    private async Task ToggleNavMenuAsync()
-    {
-        _navMenuOpened = !_navMenuOpened;
-        await JsRuntime.InvokeVoidAsync("SiteJsInterop.collapseNavMenu", _navMenuOpened, "toc");
-    }
-}

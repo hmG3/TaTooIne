@@ -3,7 +3,9 @@
 <section id="calculation">
     @if (State == null)
     {
-        <p><em>Loading...</em></p>
+        <p>
+            <em>Loading...</em>
+        </p>
     }
     else
     {
@@ -23,47 +25,23 @@
             </tr>
             </thead>
             <tbody>
-                @foreach (var row in _transposedState)
-                {
-                    <tr>
-                        <td>@row.First().Time.ToShortDateString()</td>
-                        @foreach (var cell in row)
-                        {
-                            <td>
-                                @if (cell != null)
-                                {
-                                    @($"{cell.Value:F2}")
-                                }
-                            </td>
-                        }
-                    </tr>
-                }
+            @foreach (var row in _transposedState)
+            {
+              var rowList = row.ToList();
+              <tr>
+                    <td>@rowList.First()!.Time.ToShortDateString()</td>
+                    @foreach (var cell in rowList)
+                    {
+                        <td>
+                            @if (cell != null)
+                            {
+                                @($"{cell.Value:F2}")
+                            }
+                        </td>
+                    }
+                </tr>
+            }
             </tbody>
         </table>
     }
 </section>
-
-@code {
-    [Parameter]
-    public CalculatedState State { get; set; }
-
-    private IEnumerable<IEnumerable<Line>> _transposedState;
-
-    protected override void OnParametersSet()
-    {
-        if (State != null)
-        {
-            _transposedState = Transpose(State.InputValues.Concat(State.OutputValues));
-        }
-    }
-
-    private static IEnumerable<IEnumerable<T>> Transpose<T>(IEnumerable<IEnumerable<T>> @this)
-    {
-        var enumerators = @this.Select(t => t.GetEnumerator()).Where(e => e.MoveNext());
-
-        while (enumerators.Any()) {
-            yield return enumerators.Select(e => e.Current);
-            enumerators = enumerators.Where(e => e.MoveNext());
-        }
-    }
-}

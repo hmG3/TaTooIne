@@ -1,11 +1,8 @@
-﻿using System;
+﻿namespace TaTooIne.Demo.Models;
 
-namespace TaTooIne.Demo.Models
+public sealed record Line
 {
-    public sealed class Line
-    {
-        public DateTime Time { get; set; }
+    public required DateTime Time { get; init; }
 
-        public decimal Value { get; set; }
-    }
+    public required double Value { get; init; }
 }

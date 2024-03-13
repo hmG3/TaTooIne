@@ -1,4 +1,4 @@
-﻿@implements IDisposable
+@implements IDisposable
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JsRuntime
 
@@ -21,7 +21,7 @@
                     <ul class="menu">
                         <li class="menu-item">
                             <NavLink href="" Match="NavLinkMatch.All">
-                                Home
+                                Docs
                             </NavLink>
                         </li>
                         <li class="menu-item">
@@ -37,32 +37,10 @@
                     </ul>
                 </div>
             </nav>
-            <button id="menu-open" class="menu-toggle" @onclick=@(() => ToggleNavMenuAsync(true))>
+            <button id="menu-open" class="menu-toggle" @onclick="@(() => ToggleNavMenuAsync(true))">
                 <span class="screen-reader-text">Close Menu</span>
                 <span class="icon-menu" aria-hidden="true"></span>
             </button>
         </div>
     </div>
 </header>
-
-@code {
-    protected override void OnInitialized()
-    {
-        NavigationManager.LocationChanged += HandleLocationChanged;
-    }
-
-    private async void HandleLocationChanged(object sender, LocationChangedEventArgs args)
-    {
-        await ToggleNavMenuAsync(false);
-    }
-
-    private async Task ToggleNavMenuAsync(bool isOpen)
-    {
-        await JsRuntime.InvokeVoidAsync("SiteJsInterop.collapseNavMenu", isOpen, "menu");
-    }
-
-    public void Dispose()
-    {
-        NavigationManager.LocationChanged -= HandleLocationChanged;
-    }
-}

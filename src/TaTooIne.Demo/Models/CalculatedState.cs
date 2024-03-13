@@ -1,17 +1,14 @@
-﻿using System.Collections.Generic;
+﻿namespace TaTooIne.Demo.Models;
 
-namespace TaTooIne.Demo.Models
+public sealed class CalculatedState
 {
-    public class CalculatedState
-    {
-        public string FuncDescription { get; set; }
+    public required string FuncDescription { get; init; }
 
-        public IReadOnlyCollection<string> InputNames { get; set; }
+    public required IReadOnlyCollection<string> InputNames { get; init; }
 
-        public IReadOnlyCollection<string> OutputNames { get; set; }
+    public required IReadOnlyCollection<string> OutputNames { get; init; }
 
-        public IReadOnlyCollection<IReadOnlyCollection<Line>> InputValues { get; set; }
+    public required IReadOnlyCollection<IReadOnlyCollection<Line?>> InputValues { get; init; }
 
-        public IReadOnlyCollection<IReadOnlyCollection<Line>> OutputValues { get; set; }
-    }
+    public required List<List<Line?>> OutputValues { get; init; }
 }

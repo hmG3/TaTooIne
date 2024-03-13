@@ -2,18 +2,3 @@
 @inject IJSRuntime JsRuntime
 
 <section id="chart" @ref="_chartCanvas"></section>
-
-@code {
-    private ElementReference _chartCanvas;
-
-    [Parameter]
-    public Function Function { get; set; }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            await JsRuntime.InvokeVoidAsync("SiteJsInterop.setupChart", _chartCanvas);
-        }
-    }
-}

@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="JetBrains.Annotations" Version="2023.3.0" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.2" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.2" PrivateAssets="all" />
     <PackageReference Include="TALib.NETCore" Version="0.4.4" />
@@ -18,5 +17,5 @@
   <Target Name="BuildAssets" AfterTargets="PostBuildEvent">
     <Exec WorkingDirectory="wwwroot" Command="npm run build" />
   </Target>
-  
+
 </Project>
