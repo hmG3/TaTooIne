@@ -41,8 +41,7 @@ public class IndicatorsBenchmark
         _tulipPeriodOption++;
 
         var currentIndicator =
-            (Indicator) GetType().GetField("__argField0", BindingFlags.NonPublic | BindingFlags.Instance)!
-                .GetValue(this)!;
+            (Indicator) GetType().GetField("__argField0", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(this)!;
         var currentIndicatorIndex =
             (int) GetType().GetField("__argField1", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(this)!;
         var currentIndicatorOptions = _tulipOptions[currentIndicatorIndex];
@@ -106,8 +105,7 @@ public class IndicatorsBenchmark
         }
     }
 
-    public static IEnumerable<object[]> TulipSource() =>
-        Indicators.All.Select((indicator, index) => new object[] { indicator, index });
+    public static IEnumerable<object[]> TulipSource() => Indicators.All.Select((indicator, index) => new object[] { indicator, index });
 
     [GlobalCleanup(Target = "Tulip")]
     public void GlobalTulipCleanup() => _inputsMemoryPool.Dispose();
@@ -126,8 +124,7 @@ public class IndicatorsBenchmark
         _talibPeriodOption++;
 
         var currentFunction =
-            (Function) GetType().GetField("__argField0", BindingFlags.NonPublic | BindingFlags.Instance)!
-                .GetValue(this)!;
+            (Function) GetType().GetField("__argField0", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(this)!;
         var currentFunctionIndex =
             (int) GetType().GetField("__argField1", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(this)!;
         var currentFunctionOptions = _talibOptions[currentFunctionIndex];
@@ -207,8 +204,7 @@ public class IndicatorsBenchmark
         }
     }
 
-    public static IEnumerable<object[]> TALibSource() =>
-        Functions.All.Select((function, index) => new object[] { function, index });
+    public static IEnumerable<object[]> TALibSource() => Abstract.All.Select((function, index) => new object[] { function, index });
 
     [GlobalCleanup(Target = "TALib")]
     public void GlobalTALibCleanup() => _inputsMemoryPool.Dispose();
@@ -309,34 +305,28 @@ public class IndicatorsBenchmark
             Near = 0.3
         };
 
-        Core.SetCandleSettings(
-            Core.CandleSettingType.BodyDoji, Core.RangeType.HighLow, candleDefaultConfig.Period,
-            candleDefaultConfig.BodyNone);
+        Core.CandleSettings.Set(Core.CandleSettingType.BodyDoji,
+            new Core.CandleSetting(Core.CandleRangeType.HighLow, candleDefaultConfig.Period, candleDefaultConfig.BodyNone));
 
-        Core.SetCandleSettings(
-            Core.CandleSettingType.BodyShort, Core.RangeType.RealBody, candleDefaultConfig.Period,
-            candleDefaultConfig.BodyShort);
+        Core.CandleSettings.Set(Core.CandleSettingType.BodyShort,
+            new Core.CandleSetting(Core.CandleRangeType.RealBody, candleDefaultConfig.Period, candleDefaultConfig.BodyShort));
 
-        Core.SetCandleSettings(
-            Core.CandleSettingType.BodyLong, Core.RangeType.RealBody, candleDefaultConfig.Period,
-            candleDefaultConfig.BodyLong);
+        Core.CandleSettings.Set(Core.CandleSettingType.BodyLong,
+            new Core.CandleSetting(Core.CandleRangeType.RealBody, candleDefaultConfig.Period, candleDefaultConfig.BodyLong));
 
-        Core.SetCandleSettings(
-            Core.CandleSettingType.ShadowVeryShort, Core.RangeType.HighLow, candleDefaultConfig.Period,
-            candleDefaultConfig.WickNone);
+        Core.CandleSettings.Set(Core.CandleSettingType.ShadowVeryShort,
+            new Core.CandleSetting(Core.CandleRangeType.HighLow, candleDefaultConfig.Period, candleDefaultConfig.WickNone));
 
-        Core.SetCandleSettings(
-            Core.CandleSettingType.ShadowLong, Core.RangeType.RealBody, candleDefaultConfig.Period,
-            candleDefaultConfig.WickLong);
+        Core.CandleSettings.Set(Core.CandleSettingType.ShadowLong,
+            new Core.CandleSetting(Core.CandleRangeType.RealBody, candleDefaultConfig.Period, candleDefaultConfig.WickLong));
 
-        Core.SetCandleSettings(
-            Core.CandleSettingType.Near, Core.RangeType.HighLow, candleDefaultConfig.Period,
-            candleDefaultConfig.Near);
+        Core.CandleSettings.Set(Core.CandleSettingType.Near,
+            new Core.CandleSetting(Core.CandleRangeType.HighLow, candleDefaultConfig.Period, candleDefaultConfig.Near));
     }
 
     private void SetupTALibInputs()
     {
-        var functionsCount = Functions.All.Count();
+        var functionsCount = Abstract.All.Count();
 
         _talibInputs = new Dictionary<int, double[][]>(functionsCount);
         _talibOptions = new Dictionary<int, double[]>(functionsCount);
@@ -344,7 +334,7 @@ public class IndicatorsBenchmark
 
         for (var i = 0; i < functionsCount; i++)
         {
-            var function = Functions.All.ElementAt(i);
+            var function = Abstract.All.ElementAt(i);
 
             var (inputs, options, outputs) = PrepareParams(function);
             _talibInputs.Add(i, inputs);
@@ -419,6 +409,7 @@ public class IndicatorsBenchmark
                     {
                         inputData[i] = random.Next(30);
                     }
+
                     inputs[j] = inputData;
                     break;
             }

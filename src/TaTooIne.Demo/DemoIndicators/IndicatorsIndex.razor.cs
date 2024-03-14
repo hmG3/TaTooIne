@@ -16,7 +16,7 @@ public partial class IndicatorsIndex
 
     protected override void OnInitialized()
     {
-        _groups = Functions.All.Where(g => g.Group != "Math Transform").GroupBy(f => f.Group).ToList();
+        _groups = Abstract.All.Where(g => g.Group != "Math Transform").GroupBy(f => f.Group).ToList();
     }
 
     private string? NavMenuCssClass(int groupId) => ActiveGroupId == groupId ? "active" : null;

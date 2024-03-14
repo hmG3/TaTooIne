@@ -1,8 +1,10 @@
+using System.Globalization;
 using BenchmarkDotNet.Columns;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Diagnosers;
 using BenchmarkDotNet.Environments;
 using BenchmarkDotNet.Exporters;
+using BenchmarkDotNet.Exporters.Csv;
 using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Loggers;
 using BenchmarkDotNet.Reports;
@@ -14,11 +16,18 @@ var config = ManualConfig.CreateEmpty()
     .AddDiagnoser(MemoryDiagnoser.Default)
     .AddLogicalGroupRules(BenchmarkLogicalGroupRule.ByParams)
     .WithOrderer(BenchmarkOrderer.Instance)
-    .WithSummaryStyle(SummaryStyle.Default.WithTimeUnit(TimeUnit.Millisecond))
+    .WithSummaryStyle(new SummaryStyle(
+        cultureInfo: CultureInfo.CurrentCulture,
+        printUnitsInHeader: true,
+        printUnitsInContent: false,
+        timeUnit: TimeUnit.Millisecond,
+        sizeUnit: SizeUnit.KB
+    ))
     .WithUnionRule(ConfigUnionRule.Union);
 #if DEBUG
 config = ManualConfig.Union(new DebugInProcessConfig(), config);
 #else
+
 config = ManualConfig.Union(config, ManualConfig.CreateEmpty()
     .AddLogger(ConsoleLogger.Default)
     .AddJob(Job.Default.WithRuntime(CoreRuntime.Core80))
@@ -29,7 +38,7 @@ config = ManualConfig.Union(config, ManualConfig.CreateEmpty()
         BenchmarkParamsColumnProvider.Instance,
         DefaultColumnProviders.Metrics
     ])
-    .AddExporter(HtmlExporter.Default));
+    .AddExporter(HtmlExporter.Default, CsvExporter.Default, MarkdownExporter.Console));
 #endif
 
 BenchmarkRunner.Run<IndicatorsBenchmark>(config);

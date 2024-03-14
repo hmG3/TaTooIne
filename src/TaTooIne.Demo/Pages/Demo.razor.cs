@@ -95,7 +95,7 @@ public partial class Demo
             },
             "Volume Indicators" => new
             {
-                Volume = _sampleData.Select(c => new Line { Time = c.Time, Value = c.Volume }).ToList(),
+                Volume = _sampleData.Select(c => new Line(c.Time, c.Volume)).ToList(),
                 OverlayLines = outputLines
             },
             _ => new
