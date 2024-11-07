@@ -15,7 +15,7 @@ public partial class IndicatorChart
     {
         if (firstRender)
         {
-            await JsRuntime.InvokeVoidAsync("SiteJsInterop.setupChart", _chartCanvas);
+            await JsRuntime.InvokeVoidAsync("App.setupChart", _chartCanvas);
         }
     }
 }

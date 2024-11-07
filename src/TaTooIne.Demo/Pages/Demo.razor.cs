@@ -105,6 +105,6 @@ public partial class Demo
             }
         };
 
-        await JsRuntime.InvokeVoidAsync("SiteJsInterop.setChartData", function.Name, data);
+        await JsRuntime.InvokeVoidAsync("App.setChartData", function.Name, data);
     }
 }

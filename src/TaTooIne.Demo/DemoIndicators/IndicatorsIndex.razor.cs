@@ -26,6 +26,6 @@ public partial class IndicatorsIndex
     private async Task ToggleNavMenuAsync()
     {
         _navMenuOpened = !_navMenuOpened;
-        await JsRuntime.InvokeVoidAsync("SiteJsInterop.collapseNavMenu", _navMenuOpened, "toc");
+        await JsRuntime.InvokeVoidAsync("App.collapseNavMenu", _navMenuOpened, "toc");
     }
 }
