@@ -1,0 +1,4 @@
+﻿<Solution>
+  <Project Path="src\TaTooIne.Benchmark\TaTooIne.Benchmark.csproj" />
+  <Project Path="src\TaTooIne.Demo\TaTooIne.Demo.csproj" />
+</Solution>
