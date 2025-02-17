@@ -5,7 +5,7 @@ esbuild
   .build({
     entryPoints: {
       "styles.min": "_scss/main.scss",
-      "bundle.min": "_ts/SiteJsInterop.ts",
+      "bundle.min": "_ts/app.ts",
       "gh-spa.min": "node_modules/ghspa/ghspa.js"
     },
     outdir: "dist",
