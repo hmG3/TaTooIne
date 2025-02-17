@@ -1,7 +1,7 @@
 {
   "mainAssemblyName": "TaTooIne.Demo",
   "resources": {
-    "hash": "sha256-b0fDYzaOgUrcbs6xGBUiGbl10hYdHWiqOpzaZYMRefc=",
+    "hash": "sha256-G08E8ninCg8BH6QeUZ33+n+RP8Jbn6EZCE68k50vtv0=",
     "fingerprinting": {
       "JetBrains.Annotations.p58nktopip.wasm": "JetBrains.Annotations.wasm",
       "Microsoft.AspNetCore.Components.546qdaac7h.wasm": "Microsoft.AspNetCore.Components.wasm",
@@ -41,7 +41,7 @@
       "System.Text.RegularExpressions.daozbzkok5.wasm": "System.Text.RegularExpressions.wasm",
       "System.Threading.ft4k4r73qq.wasm": "System.Threading.wasm",
       "TALib.NETCore.ts9ookp9og.wasm": "TALib.NETCore.wasm",
-      "TaTooIne.Demo.j89uvz5vtz.wasm": "TaTooIne.Demo.wasm",
+      "TaTooIne.Demo.ylc3lw3gfj.wasm": "TaTooIne.Demo.wasm",
       "TinyCsvParser.7kx8xmyr8c.wasm": "TinyCsvParser.wasm",
       "dotnet.js": "dotnet.js",
       "dotnet.native.8bti36lthm.js": "dotnet.native.js",
@@ -106,7 +106,7 @@
       "System.Text.RegularExpressions.daozbzkok5.wasm": "sha256-SwONyL4u0QL03V6vDIc5qnIH0wN0SZlzUT5YfFxE0+I=",
       "System.Threading.ft4k4r73qq.wasm": "sha256-nap18MGuaBb/6+3lNg/xNxSW/mmKjGPFguUcGr070hQ=",
       "TALib.NETCore.ts9ookp9og.wasm": "sha256-YwDiSVTdwUjtdMiH9hPVc54QxMzLh1tRum0hg0J48Ng=",
-      "TaTooIne.Demo.j89uvz5vtz.wasm": "sha256-vXot61RA2xuzlsSYCZ1EfmWetPDb2qTcokzO3D1QGs4=",
+      "TaTooIne.Demo.ylc3lw3gfj.wasm": "sha256-lkddYwLYYIM008nTYSYBSmQqZbKkfz09ooY3tuBYZzo=",
       "TinyCsvParser.7kx8xmyr8c.wasm": "sha256-5xTnw/5aH2MC01JAczE1yZSq0jsl0/YIIBZsOf5yquQ="
     }
   },

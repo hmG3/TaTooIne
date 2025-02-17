@@ -4,12 +4,12 @@
   "license": "MIT",
   "type": "module",
   "devDependencies": {
-    "esbuild": "~0.24.0",
+    "esbuild": "~0.25.0",
     "esbuild-sass-plugin": "~3.3.1"
   },
   "dependencies": {
     "ghspa": "~1.0.0",
-    "lightweight-charts": "~4.2.1"
+    "lightweight-charts": "~5.0.2"
   },
   "scripts": {
     "build": "node esbuild.js"
