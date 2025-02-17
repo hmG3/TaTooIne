@@ -1,8 +1,22 @@
-﻿import { BarData, createChart, CrosshairMode, HistogramData, IChartApi, ISeriesApi, LineData } from "lightweight-charts";
+﻿import {
+  BarData,
+  CandlestickSeries,
+  createChart,
+  createTextWatermark,
+  CrosshairMode,
+  HistogramData,
+  HistogramSeries,
+  IChartApi,
+  ISeriesApi,
+  ITextWatermarkPluginApi,
+  LineData,
+  LineSeries,
+} from "lightweight-charts";
 
 class App {
   private chart: IChartApi;
   private chartSeriesMap!: Map<string, ISeriesApi<"Candlestick" | "Histogram" | "Line" | "Bar" | "Area">>;
+  textWatermark: ITextWatermarkPluginApi<unknown>;
 
   static load(): void {
     window[App.name] = new App();
@@ -33,20 +47,14 @@ class App {
         visible: true,
         borderColor: "rgba(197, 203, 206, 1)",
       },
-      leftPriceScale: {
-        visible: true,
-        borderColor: "rgba(197, 203, 206, 1)",
-      },
       timeScale: {
         borderColor: "rgba(197, 203, 206, 0.8)",
       },
-      watermark: {
-        visible: true,
-        fontSize: 24,
-        horzAlign: "center",
-        vertAlign: "center",
-        color: "rgba(171, 71, 188, 0.5)",
-      },
+    });
+
+    this.textWatermark = createTextWatermark(this.chart.panes()[0], {
+      horzAlign: "center",
+      vertAlign: "center",
     });
 
     let resizeTimerId: number;
@@ -69,23 +77,26 @@ class App {
       m.delete(k);
     });
 
-    this.chart.applyOptions({
-      watermark: {
-        text: title.toUpperCase(),
-      },
+    this.textWatermark.applyOptions({
+      lines: [
+        {
+          text: title.toUpperCase(),
+          color: "rgba(227, 215, 255, 0.75)",
+          fontSize: 24,
+        },
+      ],
     });
 
     if (data.candle && Array.isArray(data.candle)) {
-      const candleSeries = this.chart.addCandlestickSeries({
-        priceScaleId: "left",
-        title: "AAPL",
+      const candleSeries = this.chart.addSeries(CandlestickSeries, {
+        priceScaleId: "right",
       });
       candleSeries.setData(data.candle);
       this.chartSeriesMap.set("candle", candleSeries);
     }
 
     if (data.volume && data.volume.length) {
-      const volumeSeries = this.chart.addHistogramSeries({
+      const volumeSeries = this.chart.addSeries(HistogramSeries, {
         priceFormat: {
           type: "volume",
         },
@@ -99,7 +110,7 @@ class App {
 
     if (data.overlayLines && Array.isArray(data.overlayLines)) {
       for (let i = 0; i < data.overlayLines.length; i++) {
-        const overlayLineSeries = this.chart.addLineSeries({
+        const overlayLineSeries = this.chart.addSeries(LineSeries, {
           priceScaleId: "right",
           lineWidth: 1,
         });
@@ -110,7 +121,7 @@ class App {
 
     if (data.valueLines && Array.isArray(data.valueLines)) {
       for (let i = 0; i < data.valueLines.length; i++) {
-        const valueLineSeries = this.chart.addLineSeries({
+        const valueLineSeries = this.chart.addSeries(LineSeries, {
           priceScaleId: "",
           lineWidth: 1,
         });
