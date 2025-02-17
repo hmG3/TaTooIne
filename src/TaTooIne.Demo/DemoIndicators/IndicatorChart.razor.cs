@@ -9,7 +9,7 @@ public partial class IndicatorChart
     private ElementReference _chartCanvas;
 
     [Parameter]
-    public required Function Function { get; set; }
+    public required Abstract.IndicatorFunction Function { get; set; }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {

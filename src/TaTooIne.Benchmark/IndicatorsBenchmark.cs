@@ -50,7 +50,7 @@ public class IndicatorsBenchmark
             return;
         }
 
-        currentIndicatorOptions[0] = _talibPeriodOption;
+        currentIndicatorOptions[0] = _tulipPeriodOption;
         switch (currentIndicator.Name.ToLower())
         {
             case "adosc":
@@ -124,7 +124,7 @@ public class IndicatorsBenchmark
         _talibPeriodOption++;
 
         var currentFunction =
-            (Function) GetType().GetField("__argField0", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(this)!;
+            (Abstract.IndicatorFunction) GetType().GetField("__argField0", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(this)!;
         var currentFunctionIndex =
             (int) GetType().GetField("__argField1", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(this)!;
         var currentFunctionOptions = _talibOptions[currentFunctionIndex];
@@ -195,9 +195,9 @@ public class IndicatorsBenchmark
 
     [Benchmark]
     [ArgumentsSource(nameof(TALibSource))]
-    public void TALib(Function Indicator, int order)
+    public void TALib(Abstract.IndicatorFunction Indicator, int order)
     {
-        var returnCode = Indicator.Run(_talibInputs[order], _talibOptions[order], _talibOutputs[order]);
+        var returnCode = Indicator.Run(_talibInputs[order], _talibOptions[order], _talibOutputs[order], .., out _);
         if (returnCode != Core.RetCode.Success)
         {
             throw new Exception("Return code not 0");
@@ -362,24 +362,21 @@ public class IndicatorsBenchmark
             switch (input.ToLower())
             {
                 case "open":
-                    if (MemoryMarshal.TryGetArray<double>(inputsMemory.Slice(openDataPointer, InputSize),
-                            out var openDataArray))
+                    if (MemoryMarshal.TryGetArray<double>(inputsMemory.Slice(openDataPointer, InputSize), out var openDataArray))
                     {
                         inputs[j] = openDataArray.AsSpan().ToArray();
                     }
 
                     break;
                 case "high":
-                    if (MemoryMarshal.TryGetArray<double>(inputsMemory.Slice(highDataPointer, InputSize),
-                            out var highDataArray))
+                    if (MemoryMarshal.TryGetArray<double>(inputsMemory.Slice(highDataPointer, InputSize), out var highDataArray))
                     {
                         inputs[j] = highDataArray.AsSpan().ToArray();
                     }
 
                     break;
                 case "low":
-                    if (MemoryMarshal.TryGetArray<double>(inputsMemory.Slice(lowDataPointer, InputSize),
-                            out var lowDataArray))
+                    if (MemoryMarshal.TryGetArray<double>(inputsMemory.Slice(lowDataPointer, InputSize), out var lowDataArray))
                     {
                         inputs[j] = lowDataArray.AsSpan().ToArray();
                     }
@@ -387,16 +384,14 @@ public class IndicatorsBenchmark
                     break;
                 case "close":
                 case "real":
-                    if (MemoryMarshal.TryGetArray<double>(inputsMemory.Slice(closeDataPointer, InputSize),
-                            out var closeDataArray))
+                    if (MemoryMarshal.TryGetArray<double>(inputsMemory.Slice(closeDataPointer, InputSize), out var closeDataArray))
                     {
                         inputs[j] = closeDataArray.AsSpan().ToArray();
                     }
 
                     break;
                 case "volume":
-                    if (MemoryMarshal.TryGetArray<double>(inputsMemory.Slice(volumeDataPointer, InputSize),
-                            out var volumeDataArray))
+                    if (MemoryMarshal.TryGetArray<double>(inputsMemory.Slice(volumeDataPointer, InputSize), out var volumeDataArray))
                     {
                         inputs[j] = volumeDataArray.AsSpan().ToArray();
                     }

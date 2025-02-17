@@ -7,12 +7,12 @@ namespace TaTooIne.Demo.DemoIndicators;
 public partial class IndicatorsIndex
 {
     private bool _navMenuOpened;
-    private List<IGrouping<string, Function>> _groups = null!;
+    private List<IGrouping<string, Abstract.IndicatorFunction>> _groups = null!;
 
     private int ActiveGroupId { get; set; } = -1;
 
     [Parameter]
-    public EventCallback<Function> OnIndicatorSelect { get; set; }
+    public EventCallback<Abstract.IndicatorFunction> OnIndicatorSelect { get; set; }
 
     protected override void OnInitialized()
     {

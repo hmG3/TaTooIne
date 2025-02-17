@@ -10,6 +10,7 @@ using BenchmarkDotNet.Loggers;
 using BenchmarkDotNet.Reports;
 using BenchmarkDotNet.Running;
 using Perfolizer.Horology;
+using Perfolizer.Metrology;
 using TaTooIne.Benchmark;
 
 var config = ManualConfig.CreateEmpty()

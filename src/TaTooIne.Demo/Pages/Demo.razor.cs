@@ -22,21 +22,27 @@ public partial class Demo
         _sampleData = fileRecords.Select(x => x.Result).ToList();
     }
 
-    private async Task CalculateExample(Function function)
+    private async Task CalculateExample(Abstract.IndicatorFunction function)
     {
         var functionInputs = new double[function.Inputs.Length][];
         var functionInputNames = new string[function.Inputs.Length];
         var functionOutputNames = new string[function.Outputs.Length];
-        for (var i = 0; i < function.Inputs.Length; i++)
+
+        if (function.Name.Equals("Mavp", StringComparison.OrdinalIgnoreCase))
         {
-            functionInputNames[i] = function.Inputs[i] == "Real"
+            functionInputNames = new string[function.Inputs.Length - 1];
+        }
+
+        for (var i = 0; i < functionInputNames.Length; i++)
+        {
+            functionInputNames[i] = function.Inputs[i].Equals("Real", StringComparison.OrdinalIgnoreCase)
                 ? i == 0 ? nameof(Candle.Close) : nameof(Candle.Open)
                 : function.Inputs[i];
         }
 
         for (var i = 0; i < function.Outputs.Length; i++)
         {
-            functionOutputNames[i] = function.Outputs[i] == "Real" ? function.Name : function.Outputs[i];
+            functionOutputNames[i] = function.Outputs[i].displayName == "Real" ? function.Name : function.Outputs[i].displayName;
         }
 
         var inputLines = new Dictionary<string, Line[]>();
@@ -67,7 +73,7 @@ public partial class Demo
             functionOutputs[i] = new double[outputLength];
         }
 
-        function.Run(functionInputs, Array.Empty<double>(), functionOutputs);
+        function.Run(functionInputs, [], functionOutputs, .., out _);
 
         var outputLines = functionOutputs.Zip(Enumerable.Repeat(
                     inputLines.Values.ElementAt(0).Skip(inputOffset).ToList(),
@@ -95,7 +101,11 @@ public partial class Demo
             },
             "Volume Indicators" => new
             {
-                Volume = _sampleData.Select(c => new Line(c.Time, c.Volume)).ToList(),
+                Volume = _sampleData.Select(c => new Line
+                {
+                    Time = c.Time,
+                    Value = c.Volume
+                }).ToList(),
                 OverlayLines = outputLines
             },
             _ => new

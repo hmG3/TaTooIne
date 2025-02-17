@@ -29,8 +29,7 @@ internal sealed class BenchmarkOrderer : IOrderer
         Summary summary)
     {
         var benchmarkLogicalGroups = benchmarksCases.GroupBy(b => GetLogicalGroupKey(benchmarksCases, b));
-        foreach (var logicalGroup in GetLogicalGroupOrder(benchmarkLogicalGroups,
-                     Enumerable.Empty<BenchmarkLogicalGroupRule>()))
+        foreach (var logicalGroup in GetLogicalGroupOrder(benchmarkLogicalGroups, []))
         {
             foreach (var benchmark in logicalGroup.OrderBy(b => summary[b]!.ResultStatistics?.Mean ?? 0d))
             {
